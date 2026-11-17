@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "prisma.config.ts"]
+}
