@@ -74,10 +74,10 @@ Projeto desenvolvido como avaliação prática da disciplina de Desenvolvimento 
 
 ## Scripts disponíveis
 
-| Comando            | Descrição                                      |
-|---------------------|------------------------------------------------|
-| `npm run dev`       | Inicia o servidor com hot-reload (tsx watch)    |
-| `npm run typecheck` | Verifica os tipos do projeto sem gerar build    |
+| Comando             | Descrição                                    |
+| ------------------- | -------------------------------------------- |
+| `npm run dev`       | Inicia o servidor com hot-reload (tsx watch) |
+| `npm run typecheck` | Verifica os tipos do projeto sem gerar build |
 
 ## Estrutura do projeto
 

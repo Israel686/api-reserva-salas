@@ -6,3 +6,49 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Papel {
+  USUARIO
+  ADMIN
+}
+
+enum StatusReserva {
+  ATIVA
+  CANCELADA
+}
+
+enum SalaTipo {
+  LABORATORIO
+  SALA
+}
+
+model Usuario {
+  id        Int       @id @default(autoincrement())
+  nome      String
+  email     String    @unique
+  senhaHash String
+  papel     Papel     @default(USUARIO)
+  reservas  Reserva[]
+}
+
+model Sala {
+  id       Int       @id @default(autoincrement())
+  numero   Int
+  tipo     SalaTipo
+  ativa    Boolean   @default(true)
+  reservas Reserva[]
+
+  @@unique([tipo, numero])
+}
+
+model Reserva {
+  id        Int           @id @default(autoincrement())
+  idUsuario Int
+  idSala    Int
+  inicio    DateTime
+  fim       DateTime
+  status    StatusReserva @default(ATIVA)
+
+  usuario Usuario @relation(fields: [idUsuario], references: [id], onDelete: Restrict)
+  sala    Sala    @relation(fields: [idSala], references: [id], onDelete: Restrict)
+}
