@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { app } from "../../src/app.js";
 import { prisma } from "../../src/lib/prisma.js";
 import { createReservation, createRoom } from "../helpers/factories.js";
+import { MAX_INT } from "../../src/schemas/room.schema.js";
 
 describe("GET /rooms", () => {
   it("devolve lista vazia quando não há salas", async () => {
@@ -55,6 +56,22 @@ describe("GET /rooms/:id", () => {
     const response = await request(app).get("/rooms/-1");
 
     expect(response.status).toBe(400);
+  });
+
+  it("responde 400 quando o id passa do limite de INT do banco", async () => {
+    const response = await request(app).get(`/rooms/${MAX_INT + 1}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toContainEqual({
+      field: "id",
+      message: `id deve ser no máximo ${MAX_INT}`,
+    });
+  });
+
+  it("responde 404 quando o id está no limite de INT mas não existe", async () => {
+    const response = await request(app).get(`/rooms/${MAX_INT}`);
+
+    expect(response.status).toBe(404);
   });
 });
 
@@ -124,6 +141,26 @@ describe("POST /rooms", () => {
     expect(response.status).toBe(400);
   });
 
+  it("responde 400 quando o number passa do limite de INT do banco", async () => {
+    const response = await request(app)
+      .post("/rooms")
+      .send({ number: MAX_INT + 1, type: "CLASSROOM" });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toContainEqual({
+      field: "number",
+      message: `number deve ser no máximo ${MAX_INT}`,
+    });
+    await expect(prisma.room.count()).resolves.toBe(0);
+  });
+
+  it("aceita o number no limite de INT do banco", async () => {
+    const response = await request(app).post("/rooms").send({ number: MAX_INT, type: "CLASSROOM" });
+
+    expect(response.status).toBe(201);
+    expect(response.body.number).toBe(MAX_INT);
+  });
+
   it("ignora campos desconhecidos em vez de persisti-los", async () => {
     const response = await request(app)
       .post("/rooms")
@@ -152,6 +189,16 @@ describe("PATCH /rooms/:id", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.errors[0].message).toBe("Informe ao menos um campo para atualizar");
+  });
+
+  it("responde 400 ao atualizar o number para além do limite de INT", async () => {
+    const room = await createRoom();
+
+    const response = await request(app)
+      .patch(`/rooms/${room.id}`)
+      .send({ number: MAX_INT + 1 });
+
+    expect(response.status).toBe(400);
   });
 
   it("responde 404 quando a sala não existe", async () => {
