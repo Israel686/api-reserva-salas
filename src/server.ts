@@ -1,9 +1,10 @@
+import "dotenv/config";
 import express from "express";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 import { roomRoutes } from "./routes/room.routes.js";
 
 const app = express();
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 

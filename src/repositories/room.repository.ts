@@ -1,32 +1,32 @@
 import { prisma } from "../lib/prisma.js";
-import type { Prisma, SalaTipo } from "../../generated/prisma/client.js";
+import type { Prisma, RoomType } from "../../generated/prisma/client.js";
 
 export const roomRepository = {
   findAll() {
-    return prisma.sala.findMany({ orderBy: { id: "asc" } });
+    return prisma.room.findMany({ orderBy: { id: "asc" } });
   },
 
   findById(id: number) {
-    return prisma.sala.findUnique({ where: { id } });
+    return prisma.room.findUnique({ where: { id } });
   },
 
-  findByTypeAndNumber(tipo: SalaTipo, numero: number) {
-    return prisma.sala.findUnique({ where: { tipo_numero: { tipo, numero } } });
+  findByTypeAndNumber(type: RoomType, number: number) {
+    return prisma.room.findUnique({ where: { type_number: { type, number } } });
   },
 
   countReservations(id: number) {
-    return prisma.reserva.count({ where: { idSala: id } });
+    return prisma.reservation.count({ where: { roomId: id } });
   },
 
-  create(data: Prisma.SalaCreateInput) {
-    return prisma.sala.create({ data });
+  create(data: Prisma.RoomCreateInput) {
+    return prisma.room.create({ data });
   },
 
-  update(id: number, data: Prisma.SalaUpdateInput) {
-    return prisma.sala.update({ where: { id }, data });
+  update(id: number, data: Prisma.RoomUpdateInput) {
+    return prisma.room.update({ where: { id }, data });
   },
 
   delete(id: number) {
-    return prisma.sala.delete({ where: { id } });
+    return prisma.room.delete({ where: { id } });
   },
 };

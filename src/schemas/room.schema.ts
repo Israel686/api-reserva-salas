@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SalaTipo } from "../../generated/prisma/enums.js";
+import { RoomType } from "../../generated/prisma/enums.js";
 
 export const roomIdSchema = z.object({
   id: z.coerce
@@ -9,12 +9,12 @@ export const roomIdSchema = z.object({
 });
 
 export const createRoomSchema = z.object({
-  numero: z
-    .number({ error: "numero é obrigatório e deve ser um número" })
-    .int("numero deve ser um número inteiro")
-    .positive("numero deve ser maior que zero"),
-  tipo: z.enum(SalaTipo, { error: "tipo deve ser LABORATORIO ou SALA" }),
-  ativa: z.boolean({ error: "ativa deve ser true ou false" }).optional(),
+  number: z
+    .number({ error: "number é obrigatório e deve ser um número" })
+    .int("number deve ser um número inteiro")
+    .positive("number deve ser maior que zero"),
+  type: z.enum(RoomType, { error: "type deve ser LABORATORY ou CLASSROOM" }),
+  active: z.boolean({ error: "active deve ser true ou false" }).optional(),
 });
 
 export const updateRoomSchema = createRoomSchema

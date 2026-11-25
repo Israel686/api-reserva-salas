@@ -1,7 +1,7 @@
 import { AppError } from "../errors/app.error.js";
 import { roomRepository } from "../repositories/room.repository.js";
 import type { CreateRoomInput, UpdateRoomInput } from "../schemas/room.schema.js";
-import type { SalaTipo } from "../../generated/prisma/client.js";
+import type { RoomType } from "../../generated/prisma/client.js";
 
 async function findOrFail(id: number) {
   const room = await roomRepository.findById(id);
@@ -10,10 +10,10 @@ async function findOrFail(id: number) {
   return room;
 }
 
-async function ensureUnique(tipo: SalaTipo, numero: number, ignoreId?: number) {
-  const existing = await roomRepository.findByTypeAndNumber(tipo, numero);
+async function ensureUnique(type: RoomType, number: number, ignoreId?: number) {
+  const existing = await roomRepository.findByTypeAndNumber(type, number);
   if (existing && existing.id !== ignoreId) {
-    throw new AppError(409, `Já existe ${tipo} com o número ${numero}`);
+    throw new AppError(409, `Já existe ${type} com o número ${number}`);
   }
 }
 
@@ -27,14 +27,14 @@ export const roomService = {
   },
 
   async create(data: CreateRoomInput) {
-    await ensureUnique(data.tipo, data.numero);
+    await ensureUnique(data.type, data.number);
 
     return roomRepository.create(data);
   },
 
   async update(id: number, data: UpdateRoomInput) {
     const room = await findOrFail(id);
-    await ensureUnique(data.tipo ?? room.tipo, data.numero ?? room.numero, id);
+    await ensureUnique(data.type ?? room.type, data.number ?? room.number, id);
 
     return roomRepository.update(id, data);
   },
