@@ -141,13 +141,49 @@ Erros de validação incluem o detalhamento por campo:
 
 ## Scripts disponíveis
 
-| Comando               | Descrição                                      |
-| --------------------- | ---------------------------------------------- |
-| `npm run dev`         | Inicia o servidor com hot-reload (tsx watch)   |
-| `npm run typecheck`   | Verifica os tipos do projeto sem gerar build   |
-| `npx prisma migrate dev` | Aplica as migrations pendentes              |
-| `npx prisma db seed`  | Cria o usuário administrador inicial           |
-| `npx prisma studio`   | Abre a interface visual do banco               |
+| Comando                  | Descrição                                    |
+| ------------------------ | -------------------------------------------- |
+| `npm run dev`            | Inicia o servidor com hot-reload (tsx watch) |
+| `npm test`               | Roda a suíte de testes uma vez               |
+| `npm run test:watch`     | Roda os testes em modo observação            |
+| `npm run test:coverage`  | Roda os testes com relatório de cobertura    |
+| `npm run typecheck`      | Verifica os tipos do projeto sem gerar build |
+| `npx prisma generate`    | Regenera o client do Prisma                  |
+| `npx prisma migrate dev` | Aplica as migrations pendentes               |
+| `npx prisma db seed`     | Cria o usuário administrador inicial         |
+| `npx prisma studio`      | Abre a interface visual do banco             |
+
+Rode `npx prisma generate` sempre que o `schema.prisma` mudar. Um client desatualizado não enxerga colunas novas e devolve registros sem elas, sem erro algum.
+
+## Testes
+
+Stack: [Vitest](https://vitest.dev/) como runner e [Supertest](https://github.com/ladjs/supertest) para exercitar a API pela camada HTTP.
+
+Os testes de integração rodam contra um PostgreSQL real, em um banco separado do de desenvolvimento. Antes da suíte, o banco de teste é criado se não existir e as migrations são aplicadas; antes de cada teste, as tabelas são truncadas.
+
+Configure o banco de teste:
+
+```bash
+cp .env.test.example .env.test
+```
+
+A `DATABASE_URL` do `.env.test` precisa ter `test` no nome do banco. A suíte se recusa a rodar caso contrário, justamente para não apagar o banco de desenvolvimento por engano.
+
+```bash
+npm test
+```
+
+Organização:
+
+```
+tests/
+├── helpers/     # Factories que criam User, Room e Reservation
+├── integration/ # Requisições HTTP de ponta a ponta contra o banco real
+├── setup/       # Criação do banco, migrations e limpeza entre testes
+└── unit/        # Funções isoladas, sem banco
+```
+
+A aplicação Express mora em `src/app.ts` e o `src/server.ts` apenas sobe o listener. Essa separação permite que o Supertest importe o app sem abrir uma porta.
 
 ## Modelo de dados
 
@@ -180,10 +216,18 @@ As entidades usam terminologia em inglês; as mensagens da API são em portuguê
 │   ├── routes/           # Definição das rotas Express
 │   ├── schemas/          # Schemas de validação Zod
 │   ├── services/         # Regras de negócio
-│   └── server.ts         # Ponto de entrada da API
+│   ├── app.ts            # Montagem da aplicação Express
+│   └── server.ts         # Ponto de entrada (sobe o listener)
+├── tests/
+│   ├── helpers/          # Factories de dados
+│   ├── integration/      # Testes HTTP contra o banco real
+│   ├── setup/            # Preparação e limpeza do banco de teste
+│   └── unit/             # Testes de funções isoladas
 ├── prisma.config.ts      # Configuração do Prisma
+├── vitest.config.ts      # Configuração dos testes
 ├── tsconfig.json         # Configuração do TypeScript
 ├── .env.example          # Modelo das variáveis de ambiente
+├── .env.test.example     # Modelo das variáveis do banco de teste
 └── package.json
 ```
 
@@ -196,6 +240,7 @@ A requisição percorre as camadas nesta ordem: **rota → controller → servic
 - Tratamento centralizado de erros, traduzindo `AppError`, erros do Zod e violações de constraint do Prisma (`P2002`, `P2003`, `P2025`) para os códigos HTTP corretos
 - Seed idempotente do usuário administrador inicial, com senha em hash bcrypt
 - Endpoint de verificação de saúde (`/health`)
+- Suíte de testes com Vitest e Supertest, cobrindo o CRUD de salas de ponta a ponta contra um banco PostgreSQL dedicado
 
 ## Equipe
 

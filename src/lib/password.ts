@@ -10,7 +10,7 @@ export function assertPasswordLength(password: string) {
   }
 }
 
-export function hashPassword(password: string) {
+export async function hashPassword(password: string) {
   assertPasswordLength(password);
 
   return bcrypt.hash(password, SALT_ROUNDS);
