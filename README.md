@@ -151,11 +151,13 @@ Erros de validação incluem o detalhamento por campo:
 
 ## Modelo de dados
 
-| Entidade      | Campos                                                     |
-| ------------- | ---------------------------------------------------------- |
-| `User`        | `id`, `name`, `email` (único), `passwordHash`, `role`       |
-| `Room`        | `id`, `number`, `type`, `active` (único por `type`+`number`) |
-| `Reservation` | `id`, `userId`, `roomId`, `start`, `end`, `status`          |
+| Entidade      | Campos                                                       |
+| ------------- | ------------------------------------------------------------ |
+| `User`        | `id`, `name`, `email` (único), `passwordHash`, `role`         |
+| `Room`        | `id`, `number`, `type`, `active` (único por `type`+`number`)   |
+| `Reservation` | `id`, `userId`, `roomId`, `start`, `end`, `status`            |
+
+Todas as entidades possuem `createdAt` e `updatedAt`. O `updatedAt` é mantido pelo Prisma Client, então atualizações feitas por SQL direto no banco não o alteram.
 
 Enums: `Role` (`USER`, `ADMIN`), `RoomType` (`LABORATORY`, `CLASSROOM`), `ReservationStatus` (`ACTIVE`, `CANCELLED`).
 
@@ -189,7 +191,7 @@ A requisição percorre as camadas nesta ordem: **rota → controller → servic
 
 ## Status atual
 
-- Modelagem completa das entidades `User`, `Room` e `Reservation`, com migrations aplicadas
+- Modelagem completa das entidades `User`, `Room` e `Reservation`, com `createdAt`/`updatedAt` e migrations aplicadas
 - CRUD de salas com validação Zod, unicidade por `type`+`number` e bloqueio de exclusão de sala com reservas
 - Tratamento centralizado de erros, traduzindo `AppError`, erros do Zod e violações de constraint do Prisma (`P2002`, `P2003`, `P2025`) para os códigos HTTP corretos
 - Seed idempotente do usuário administrador inicial, com senha em hash bcrypt

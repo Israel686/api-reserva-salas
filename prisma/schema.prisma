@@ -28,6 +28,8 @@ model User {
   email        String        @unique
   passwordHash String
   role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
   reservations Reservation[]
 }
 
@@ -36,18 +38,22 @@ model Room {
   number       Int
   type         RoomType
   active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
   reservations Reservation[]
 
   @@unique([type, number])
 }
 
 model Reservation {
-  id     Int               @id @default(autoincrement())
-  userId Int
-  roomId Int
-  start  DateTime
-  end    DateTime
-  status ReservationStatus @default(ACTIVE)
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  roomId    Int
+  start     DateTime
+  end       DateTime
+  status    ReservationStatus @default(ACTIVE)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now()) @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Restrict)
   room Room @relation(fields: [roomId], references: [id], onDelete: Restrict)
