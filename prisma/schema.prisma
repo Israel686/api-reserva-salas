@@ -7,48 +7,54 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Papel {
-  USUARIO
+enum Role {
+  USER
   ADMIN
 }
 
-enum StatusReserva {
-  ATIVA
-  CANCELADA
+enum ReservationStatus {
+  ACTIVE
+  CANCELLED
 }
 
-enum SalaTipo {
-  LABORATORIO
-  SALA
+enum RoomType {
+  LABORATORY
+  CLASSROOM
 }
 
-model Usuario {
-  id        Int       @id @default(autoincrement())
-  nome      String
-  email     String    @unique
-  senhaHash String
-  papel     Papel     @default(USUARIO)
-  reservas  Reserva[]
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+  reservations Reservation[]
 }
 
-model Sala {
-  id       Int       @id @default(autoincrement())
-  numero   Int
-  tipo     SalaTipo
-  ativa    Boolean   @default(true)
-  reservas Reserva[]
+model Room {
+  id           Int           @id @default(autoincrement())
+  number       Int
+  type         RoomType
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+  reservations Reservation[]
 
-  @@unique([tipo, numero])
+  @@unique([type, number])
 }
 
-model Reserva {
-  id        Int           @id @default(autoincrement())
-  idUsuario Int
-  idSala    Int
-  inicio    DateTime
-  fim       DateTime
-  status    StatusReserva @default(ATIVA)
+model Reservation {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  roomId    Int
+  start     DateTime
+  end       DateTime
+  status    ReservationStatus @default(ACTIVE)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now()) @updatedAt
 
-  usuario Usuario @relation(fields: [idUsuario], references: [id], onDelete: Restrict)
-  sala    Sala    @relation(fields: [idSala], references: [id], onDelete: Restrict)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Restrict)
 }
